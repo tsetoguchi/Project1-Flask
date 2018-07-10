@@ -28,20 +28,42 @@ def index():
     return render_template("index.html", logins=logins)
 
 # Enter username and password
-@app.route("/hello", methods=["GET", "POST"])
-def hello():
+@app.route("/login", methods=["GET", "POST"])
+def login():
 
-    # Get all of the user info in the database, send it to our hello.html template.
+    # Get all of the user info in the database, send it to our login.html template.
     logins = db.execute("SELECT * FROM logins").fetchall()
 
-    # Login
+    # Get login information
     if request.method == "GET":
-        return "Please submit the form instead."
+        return render_template("getrequest.html", message="Please submit the form instead.")
     if request.method == "POST":
         name = request.form.get("name")
         password = request.form.get("password")
-    return render_template("hello.html", name=name, password=password, logins=logins)
 
-@app.route("/register", methods=["POST"])
+    # Make sure flight exists.
+    #if db.execute("SELECT * FROM flights WHERE id = :id", {"id": flight_id}).rowcount == 0:
+    #    return render_template("error.html", message="No such flight with that id.")
+
+    return render_template("login.html", name=name, password=password, logins=logins)
+
+@app.route("/register", methods=["GET", "POST"])
 def register():
-    return render_template("register.html")
+
+    # Get all of the user info in the database, send it to our register.html template.
+    logins = db.execute("SELECT * FROM logins").fetchall()
+
+    # Get login information
+    username = request.form.get("username")
+    password = request.form.get("password")
+    email = request.form.get("email")
+
+    # Get all of the user info in the database, send it to our register.html template.
+    #logins = db.execute("SELECT * FROM logins").fetchall()
+
+    db.execute("INSERT INTO logins (username, password, email) VALUES (:username, :password, :email)",
+                {"username": username, "password": password, "email": email})
+
+    # Add information to logins
+    db.commit()
+    return render_template("success.html")
