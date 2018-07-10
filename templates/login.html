@@ -5,18 +5,11 @@
 {% endblock %}
 
 {% block body %}
-    <table class="table table-striped">
-        <thead>
-            <th scope="col">id</th>
-            <th scope="col">Username</th>
-            <th scope="col">Password</th>
-        </thead>
-        <tbody>
-            <tr>
-                <td>{{ logins.id }}</td>
-                <td>{{ logins.username }}</td>
-                <td>{{ logins.password }}</td>
-            </tr>
-        </tbody>
-    </table>
+
+<h1>You are now logged in!</h1>
+
+    <form action="{{ url_for('weather') }}" method="post">
+        <input type="text" name="zipcode" placeholder="Zipcode" tabindex="1">
+        <button tabindex="3">Go!</button>
+    </form>
 {% endblock %}

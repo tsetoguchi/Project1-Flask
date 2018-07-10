@@ -67,3 +67,9 @@ def register():
     # Add information to logins
     db.commit()
     return render_template("success.html")
+
+@app.route("/weather", methods=["GET", "POST"])
+def weather():
+    weather = requests.get("https://api.darksky.net/forecast/03420c86c79252e3e562d60cb56d5b03/42.37,-71.11").json()
+    print(weather["currently"])
+    return render_template("weather.html", weather=weather)
