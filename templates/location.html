@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+
+<table class="table table-striped">
+        <thead>
+            <th scope="col">Name</th>
+            <th scope="col">Temperature</th>
+            <th scope="col">Lattitude</th>
+            <th scope="col">Longitude</th>
+            <th scope="col">Population</th>
+        </thead>
+        <tbody>
+        {% for flight in flights %}
+            <tr>
+                <th scope="row">{{ zips.City }}</th>
+                <td>{{ weather["temperature"] }}</td>
+                <td>{{ zips.Lat }}</td>
+                <td>{{ zips.Long }}</td>
+                <td>{{ zips.Population }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% block body %}
+
+{% endblock %}

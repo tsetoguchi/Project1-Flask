@@ -41,14 +41,15 @@ def login():
         name = request.form.get("name")
         password = request.form.get("password")
 
-    # Make sure flight exists.
-    #if db.execute("SELECT * FROM flights WHERE id = :id", {"id": flight_id}).rowcount == 0:
-    #    return render_template("error.html", message="No such flight with that id.")
-
     return render_template("login.html", name=name, password=password, logins=logins)
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+
+    return render_template("register.html")
+
+@app.route("/success", methods=["GET", "POST"])
+def success():
 
     # Get all of the user info in the database, send it to our register.html template.
     logins = db.execute("SELECT * FROM logins").fetchall()
@@ -68,8 +69,18 @@ def register():
     db.commit()
     return render_template("success.html")
 
+@app.route("/location", methods=["GET", "POST"])
+def location():
+    # Get all of the user info in the database, send it to our login.html template.
+    zips = db.execute("SELECT * FROM zips").fetchall()
+    weather = requests.get("https://api.darksky.net/forecast/03420c86c79252e3e562d60cb56d5b03/42.37,-71.11").json()
+    return render_template("location.html", weather=weather, zips=zips)
+
 @app.route("/weather", methods=["GET", "POST"])
 def weather():
+
+    # Get all of the user info in the database, send it to our login.html template.
+    logins = db.execute("SELECT * FROM logins").fetchall()
+    zipcode = request.form.get("zipcode")
     weather = requests.get("https://api.darksky.net/forecast/03420c86c79252e3e562d60cb56d5b03/42.37,-71.11").json()
-    print(weather["currently"])
-    return render_template("weather.html", weather=weather)
+    return render_template("weather.html", weather=weather, zipcode=zipcode)

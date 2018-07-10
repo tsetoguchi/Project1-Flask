@@ -10,16 +10,15 @@ db = scoped_session(sessionmaker(bind=engine))
 def main():
 
     # Open a file using Python's CSV reader.
-    f = open("logins.csv")
+    f = open("zips.csv")
     reader = csv.reader(f)
 
     # Iterate over the rows of the opened CSV file.
     for row in reader:
 
         # Execute database queries, one per row; then print out confirmation.
-        db.execute("INSERT INTO flights (origin, destination, duration) VALUES (:x, :y, :z)",
-                    {"x": row[0], "y": row[1], "z": row[2]})
-        print(f"Added flight from {row[0]} to {row[1]} lasting {row[2]} minutes.")
+        db.execute("INSERT INTO zips (Zipcode, City, State, Lat, Long, Population) VALUES (:a, :b, :c, :d, :e, :f)",
+                    {"a": row[0], "b": row[1], "c": row[2], "d": row[3], "e": row[4], "f": row[5]})
 
     # Technically this is when all of the queries we've made happen!
     db.commit()

@@ -8,8 +8,20 @@
 
 <h1>You are now logged in!</h1>
 
-    <form action="{{ url_for('weather') }}" method="post">
+
+    <form action="{{ url_for('location') }}" method="post">
         <input type="text" name="zipcode" placeholder="Zipcode" tabindex="1">
         <button tabindex="3">Go!</button>
     </form>
+
+<form action="{{ url_for('index') }}" method="post">
+
+        <div class="form-group">
+            <select class="form-control" name="flight_id">
+                {% for flight in flights %}
+                    <option value="{{ Zips.Zipcode }}">{{ zips.City }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
 {% endblock %}

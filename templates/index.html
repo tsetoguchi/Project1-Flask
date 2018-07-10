@@ -17,7 +17,9 @@
     </form>
 
 <h4>Don't have an account?</h4>
-    <a href="{{ url_for('register') }}"><button tabindex="3">Register</button></a>
+    <form action="{{ url_for('register') }}" method="post">
+       <button tabindex="3">Register</button></a>
+    </form>
 
 
 
