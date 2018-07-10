@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Login Page
+{% endblock %}
+
+{% block body %}
+
+<h1>Login</h1>
+
+    <form action="{{ url_for('hello') }}" method="post">
+        Username
+        <input type="text" name="name" placeholder="" tabindex="1">
+        Password
+        <input type="password" name="password" placeholder="" tabindex="2">
+        <button tabindex="3">Login</button>
+    </form>
+
+<h4>Don't have an account?</h4>
+    <form action="{{ url_for('register') }}" method="post">
+        <button tabindex="3">Register</button>
+    </form>
+
+
+
+{% endblock %}

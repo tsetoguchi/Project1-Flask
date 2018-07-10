@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Welcome {{ logins.username }}!
+{% endblock %}
+
+{% block body %}
+    <table class="table table-striped">
+        <thead>
+            <th scope="col">id</th>
+            <th scope="col">Username</th>
+            <th scope="col">Password</th>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ logins.id }}</td>
+                <td>{{ logins.username }}</td>
+                <td>{{ logins.password }}</td>
+            </tr>
+        </tbody>
+    </table>
+{% endblock %}
