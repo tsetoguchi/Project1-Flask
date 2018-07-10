@@ -73,14 +73,19 @@ def success():
 def location():
     # Get all of the user info in the database, send it to our login.html template.
     zips = db.execute("SELECT * FROM zips").fetchall()
+
+    # Get zipcode
+    zipcode = request.form.get("zipcode")
+
+    locations = db.execute("SELECT * FROM zips WHERE Zipcode= '%zipcode' ")
     weather = requests.get("https://api.darksky.net/forecast/03420c86c79252e3e562d60cb56d5b03/42.37,-71.11").json()
     return render_template("location.html", weather=weather, zips=zips)
 
 @app.route("/weather", methods=["GET", "POST"])
 def weather():
 
-    # Get all of the user info in the database, send it to our login.html template.
+    # Get all of the user info in the database, send it to our weather.html template.
     logins = db.execute("SELECT * FROM logins").fetchall()
     zipcode = request.form.get("zipcode")
-    weather = requests.get("https://api.darksky.net/forecast/03420c86c79252e3e562d60cb56d5b03/42.37,-71.11").json()
+    weather = requests.get("https://api.darksky.net/forecast/03420c86c79252e3e562d60cb56d5b03/%55.55,-70.77").json()
     return render_template("weather.html", weather=weather, zipcode=zipcode)
