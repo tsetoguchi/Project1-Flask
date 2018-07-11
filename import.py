@@ -15,10 +15,12 @@ def main():
 
     # Iterate over the rows of the opened CSV file.
     for row in reader:
-
+        # Skips header of zips.csv
+        if row[0] == 'zipcode':
+            continue
         # Execute database queries, one per row; then print out confirmation.
         db.execute("INSERT INTO zips (zipcode, city, state, lat, long, population) VALUES (:a, :b, :c, :d, :e, :f)",
-                    {"a": row[0], "b": row[1], "c": row[2], "d": row[3], "e": row[4], "f": row[5]})
+                  {"a": row[0], "b": row[1], "c": row[2], "d": row[3], "e": row[4], "f": row[5]})
 
     # Technically this is when all of the queries we've made happen!
     db.commit()

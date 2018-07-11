@@ -45,7 +45,10 @@ def login():
             name = request.form.get("name")
             password = request.form.get("password")
 
-        return render_template("login.html", name=name, password=password, logins=logins, id=session["user_id"])
+            if name == '' or password == '':
+                return render_template("invalidlogin.html")
+            else:
+                return render_template("login.html", name=name, password=password, logins=logins, id=session["user_id"])
 
     else:
         return render_template("unsuccessful.html")
