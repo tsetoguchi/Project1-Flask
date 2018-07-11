@@ -14,14 +14,8 @@
         <button tabindex="3">Go!</button>
     </form>
 
-<form action="{{ url_for('index') }}" method="post">
 
-        <div class="form-group">
-            <select class="form-control" name="flight_id">
-                {% for flight in flights %}
-                    <option value="{{ Zips.Zipcode }}">{{ zips.City }}</option>
-                {% endfor %}
-            </select>
-        </div>
+
+    <a href="{{ url_for('logout') }}">Logout</a>
 
 {% endblock %}

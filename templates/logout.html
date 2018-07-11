@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Logged out
+{% endblock %}
+
+{% block body %}
+    <div class="alert alert-success" role="alert">
+        You have logged out!
+    </div>
+    <a href="{{ url_for('index') }}">Home</a>
+{% endblock %}

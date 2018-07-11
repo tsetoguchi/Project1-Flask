@@ -21,7 +21,7 @@ Session(app)
 engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 def index():
     # Get all of the user info in the database, send it to our index.html template.
     logins = db.execute("SELECT * FROM logins").fetchall()
@@ -30,18 +30,25 @@ def index():
 # Enter username and password
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    # Create session
+    session["user_id"] = id
+    # Check if session is active
+    if session["user_id"] == id:
 
-    # Get all of the user info in the database, send it to our login.html template.
-    logins = db.execute("SELECT * FROM logins").fetchall()
+        # Get all of the user info in the database, send it to our login.html template.
+        logins = db.execute("SELECT * FROM logins").fetchall()
 
-    # Get login information
-    if request.method == "GET":
-        return render_template("getrequest.html", message="Please submit the form instead.")
-    if request.method == "POST":
-        name = request.form.get("name")
-        password = request.form.get("password")
+        # Get login information
+        if request.method == "GET":
+            return render_template("getrequest.html", message="Please submit the form instead.")
+        if request.method == "POST":
+            name = request.form.get("name")
+            password = request.form.get("password")
 
-    return render_template("login.html", name=name, password=password, logins=logins)
+        return render_template("login.html", name=name, password=password, logins=logins, id=session["user_id"])
+
+    else:
+        return render_template("unsuccessful.html")
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -63,7 +70,7 @@ def success():
     #logins = db.execute("SELECT * FROM logins").fetchall()
 
     db.execute("INSERT INTO logins (username, password, email) VALUES (:username, :password, :email)",
-                {"username": username, "password": password, "email": email})
+            {"username": username, "password": password, "email": email})
 
     # Add information to logins
     db.commit()
@@ -71,21 +78,43 @@ def success():
 
 @app.route("/location", methods=["GET", "POST"])
 def location():
-    # Get all of the user info in the database, send it to our login.html template.
-    zips = db.execute("SELECT * FROM zips").fetchall()
 
-    # Get zipcode
-    zipcode = request.form.get("zipcode")
+    # Check if session is active
+    if session["user_id"] == id:
 
-    locations = db.execute("SELECT * FROM zips WHERE Zipcode= '%zipcode' ")
-    weather = requests.get("https://api.darksky.net/forecast/03420c86c79252e3e562d60cb56d5b03/42.37,-71.11").json()
-    return render_template("location.html", weather=weather, zips=zips)
+        # Get all of the user info in the database, send it to our login.html template.
+        zips = db.execute("SELECT * FROM zips").fetchall()
+
+        # Get zipcode
+        zipcode = request.form.get("zipcode")
+
+        locations = db.execute("SELECT * FROM zips WHERE Zipcode= '%zipcode' ")
+        weather = requests.get("https://api.darksky.net/forecast/03420c86c79252e3e562d60cb56d5b03/42.37,-71.11").json()
+        return render_template("location.html", weather=weather, zips=zips)
+
+    else:
+        return render_template("unsuccessful.html")
+
+@app.route("/logout", methods=["GET", "POST"])
+def logout():
+    # Check if session is active
+    if session["user_id"] == id:
+        session.clear()
+        return render_template("logout.html")
+    else:
+        return render_template("unsuccessful.html")
 
 @app.route("/weather", methods=["GET", "POST"])
 def weather():
 
-    # Get all of the user info in the database, send it to our weather.html template.
-    logins = db.execute("SELECT * FROM logins").fetchall()
-    zipcode = request.form.get("zipcode")
-    weather = requests.get("https://api.darksky.net/forecast/03420c86c79252e3e562d60cb56d5b03/%55.55,-70.77").json()
-    return render_template("weather.html", weather=weather, zipcode=zipcode)
+    # Check if session is active
+    if session["user_id"] == id:
+
+        # Get all of the user info in the database, send it to our weather.html template.
+        logins = db.execute("SELECT * FROM logins").fetchall()
+        zipcode = request.form.get("zipcode")
+        weather = requests.get("https://api.darksky.net/forecast/03420c86c79252e3e562d60cb56d5b03/%55.55,-70.77").json()
+        return render_template("weather.html", weather=weather, zipcode=zipcode)
+
+    else:
+        return render_template("unsuccessful.html")

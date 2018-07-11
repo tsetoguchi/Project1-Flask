@@ -17,7 +17,7 @@ def main():
     for row in reader:
 
         # Execute database queries, one per row; then print out confirmation.
-        db.execute("INSERT INTO zips (Zipcode, City, State, Lat, Long, Population) VALUES (:a, :b, :c, :d, :e, :f)",
+        db.execute("INSERT INTO zips (zipcode, city, state, lat, long, population) VALUES (:a, :b, :c, :d, :e, :f)",
                     {"a": row[0], "b": row[1], "c": row[2], "d": row[3], "e": row[4], "f": row[5]})
 
     # Technically this is when all of the queries we've made happen!

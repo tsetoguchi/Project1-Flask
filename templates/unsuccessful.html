@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Unsuccessful login!
+{% endblock %}
+
+{% block body %}
+    <div class="alert alert-danger" role="alert">
+        <strong>You are not logged in!</strong> Please log in and try again!
+    </div>
+    <a href="{{ url_for('index') }}">Back</a>
+{% endblock %}
