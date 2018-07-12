@@ -23,6 +23,7 @@ db = scoped_session(sessionmaker(bind=engine))
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+
     # Get all of the user info in the database, send it to our index.html template.
     logins = db.execute("SELECT * FROM logins").fetchall()
     return render_template("index.html", logins=logins)
@@ -112,33 +113,37 @@ def locations():
             if similar == []:
                 return render_template("invalidsearch.html")
             else:
-                weather = requests.get("https://api.darksky.net/forecast/03420c86c79252e3e562d60cb56d5b03/42.37,-71.11").json()
                 return render_template("locations.html", weather=weather, zips=zips, zipcode=zipcode, similar=similar)
 
     else:
         return render_template("unsuccessful.html")
 
-@app.route("/location/<int:zipcode>")
+@app.route("/location/<zipcode>")
 def location(zipcode):
 
+
     # Make sure zipcode exists.
-    zip = db.execute("SELECT * FROM zips WHERE zipcode = %(zip)s", {"zip": zipcode}).fetchone()
+    zip = db.execute("SELECT * FROM zips WHERE zipcode = :zip", {"zip": zipcode}).fetchone()
     if zip is None:
         return render_template("invalidsearch.html")
 
-    # Get zipcode or city
-    zipcode = '%' + request.form.get("zipcode") + '%'
+    # Get weather
+    weather = requests.get("https://api.darksky.net/forecast/03420c86c79252e3e562d60cb56d5b03/" + str(zip[3]) + "," + str(zip[4])).json()
+    print('********************************')
+    print("https://api.darksky.net/forecast/03420c86c79252e3e562d60cb56d5b03/" + str(zip[3]) + "," + str(zip[4]))
     # Similar zipcodes
     similar = db.execute("SELECT * FROM zips WHERE zipcode LIKE :zip", {"zip": zipcode}).fetchall()
     if similar == []:
         return render_template("invalidsearch.html")
-    return render_template("location.html", zipcode=zipcode, similar=similar)
+    else:
+        return render_template("location.html", zip=zip, similar=similar, weather=weather)
 
 
 
 
 @app.route("/logout", methods=["GET", "POST"])
 def logout():
+
     # Check if session is active
     if session["user_id"] == id:
         session.clear()
@@ -158,5 +163,13 @@ def weather():
         weather = requests.get("https://api.darksky.net/forecast/03420c86c79252e3e562d60cb56d5b03/%55.55,-70.77").json()
         return render_template("weather.html", weather=weather, zipcode=zipcode)
 
+    else:
+        return render_template("unsuccessful.html")
+
+@app.route("/invalidsearch", methods=["GET", "POST"])
+def invalidsearch():
+
+    if session["user_id"] == id:
+        return render_template("invalidsearch.html")
     else:
         return render_template("unsuccessful.html")
