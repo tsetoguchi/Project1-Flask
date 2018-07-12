@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Welcome {{ logins.username }}!
+    Welcome!
 {% endblock %}
 
 {% block body %}
@@ -9,12 +9,15 @@
 <h1>You are now logged in!</h1>
 
 
-    <form action="{{ url_for('location') }}" method="post">
-        <input type="text" name="zipcode" placeholder="Zipcode" tabindex="1">
+    <form action="{{ url_for('locations') }}" method="post">
+        <input type="text" name="zipcode" placeholder="Type in a Zipcode" tabindex="1">
         <button tabindex="3">Go!</button>
     </form>
 
-
+    <form action="{{ url_for('locations') }}" method="post">
+        <input type="text" name="city" placeholder="Type in a City" tabindex="1">
+        <button tabindex="3">Go!</button>
+    </form>
 
     <a href="{{ url_for('logout') }}">Logout</a>
 

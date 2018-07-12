@@ -3,23 +3,20 @@
 {% block body %}
 
 
-<table class="table table-striped">
+    <table class="table table-striped">
         <thead>
             <th scope="col">Zipcode</th>
             <th scope="col">Location</th>
-            <th scope="col">Latitude</th>
-            <th scope="col">Longitude</th>
-            <th scope="col">Population</th>
+            <th scope="col">Weather</th>
         </thead>
         <tbody>
             {% for similar in similar %}
             <tr>
                 <td> {{ similar.zipcode }}</td>
                 <td> {{ similar.city }}, {{ similar.state }} </td>
-                <td> {{ similar.lat }} </td>
-                <td> {{ similar.long }} </td>
-                <td> {{ similar.population }} </td>
+                <td><a href="{{ url_for('location', zipcode=similar.zipcode) }}" class="btn btn-info" role="button">!</a></td>
             </tr>
             {% endfor %}
         </tbody>
+    </table>
 {% endblock %}

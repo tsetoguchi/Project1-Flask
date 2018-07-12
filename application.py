@@ -30,28 +30,41 @@ def index():
 # Enter username and password
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    # Create session
-    session["user_id"] = id
-    # Check if session is active
-    if session["user_id"] == id:
 
-        # Get all of the user info in the database, send it to our login.html template.
-        logins = db.execute("SELECT * FROM logins").fetchall()
+    # Get all of the user info in the database, send it to the login.html template.
+    logins = db.execute("SELECT * FROM logins").fetchall()
 
-        # Get login information
-        if request.method == "GET":
-            return render_template("getrequest.html", message="Please submit the form instead.")
-        if request.method == "POST":
-            name = request.form.get("name")
-            password = request.form.get("password")
+    # Get all of the zipcode information in the database, send it to the login.html template.
+    zips = db.execute("SELECT * FROM zips").fetchall()
 
-            if name == '' or password == '':
-                return render_template("invalidlogin.html")
-            else:
-                return render_template("login.html", name=name, password=password, logins=logins, id=session["user_id"])
 
-    else:
-        return render_template("unsuccessful.html")
+    # Get login information
+    if request.method == "GET":
+        return render_template("index.html")
+    if request.method == "POST":
+        name = request.form.get("name")
+        password = request.form.get("password")
+
+        # Query for username and password
+        username = db.execute("SELECT username FROM logins where username = :username", {"username": name}).fetchone()
+        password_ = db.execute("SELECT password FROM logins where password = :password", {"password": password}).fetchone()
+        print(password_[0])
+        print(request.form["password"])
+        print(username[0])
+        print(request.form["name"])
+        if request.form["password"] == password_[0] and request.form["name"] == username[0]:
+            session["user_id"] = id
+            return render_template("login.html", name=name, password=password, logins=logins, zips=zips, id=session["user_id"])
+        if username[0] or password_[0] == None:
+            return render_template("invalidlogin.html")
+        elif name == '' or password == '':
+            return render_template("invalidlogin.html")
+
+
+        # Check if username or password fields are empty
+
+        # elif (request.form["password"] == password_[0] and request.form["name"] == username[0]) is False:
+        #     return render_template("invalidlogin.html")
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -79,24 +92,50 @@ def success():
     db.commit()
     return render_template("success.html")
 
-@app.route("/location", methods=["GET", "POST"])
-def location():
+@app.route("/locations", methods=["GET", "POST"])
+def locations():
+
+    # Get all of the user info in the database, send it to our locations.html template.
+    zips = db.execute("SELECT * FROM zips").fetchall()
 
     # Check if session is active
     if session["user_id"] == id:
 
-        # Get all of the user info in the database, send it to our login.html template.
-        zips = db.execute("SELECT * FROM zips").fetchall()
+        if request.method == "POST":
+            # Get all of the zip info in the database, send it to our locations.html template.
+            zips = db.execute("SELECT * FROM zips").fetchall()
 
-        # Get zipcode
-        zipcode = request.form.get("zipcode")
-
-        locations = db.execute("SELECT * FROM zips WHERE Zipcode= '%zipcode' ")
-        weather = requests.get("https://api.darksky.net/forecast/03420c86c79252e3e562d60cb56d5b03/42.37,-71.11").json()
-        return render_template("location.html", weather=weather, zips=zips)
+            # Get zipcode or city
+            zipcode = '%' + request.form.get("zipcode") + '%'
+            # Similar zipcodes
+            similar = db.execute("SELECT * FROM zips WHERE zipcode LIKE :zip", {"zip": zipcode}).fetchall()
+            if similar == []:
+                return render_template("invalidsearch.html")
+            else:
+                weather = requests.get("https://api.darksky.net/forecast/03420c86c79252e3e562d60cb56d5b03/42.37,-71.11").json()
+                return render_template("locations.html", weather=weather, zips=zips, zipcode=zipcode, similar=similar)
 
     else:
         return render_template("unsuccessful.html")
+
+@app.route("/location/<int:zipcode>")
+def location(zipcode):
+
+    # Make sure zipcode exists.
+    zip = db.execute("SELECT * FROM zips WHERE zipcode = %(zip)s", {"zip": zipcode}).fetchone()
+    if zip is None:
+        return render_template("invalidsearch.html")
+
+    # Get zipcode or city
+    zipcode = '%' + request.form.get("zipcode") + '%'
+    # Similar zipcodes
+    similar = db.execute("SELECT * FROM zips WHERE zipcode LIKE :zip", {"zip": zipcode}).fetchall()
+    if similar == []:
+        return render_template("invalidsearch.html")
+    return render_template("location.html", zipcode=zipcode, similar=similar)
+
+
+
 
 @app.route("/logout", methods=["GET", "POST"])
 def logout():

@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Unsuccessful search!
+{% endblock %}
+
+{% block body %}
+    <div class="alert alert-danger">
+      <strong>Sorry!</strong> Unable to complete your search request.
+    </div>
+    <a href="{{ url_for('login') }}">Back</a>
+{% endblock %}
