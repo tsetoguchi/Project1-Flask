@@ -3,6 +3,7 @@
 {% block body %}
 
 
+<h5>Geographical Information</h5>
 <table class="table table-striped">
         <thead>
             <th scope="col">Zipcode</th>
@@ -22,7 +23,20 @@
             </tr>
             {% endfor %}
         </tbody>
+</table>
 
+<table class="table table-striped">
+         <thead>
+            <th scope="col>">Comments</th>
+        </head>
+        <tbody>
+            <tr>
+                <td> </td>
+            </tr>
+        </tbody>
+</table>
+
+<h5>Weather</h5>
 <table class="table table-dark">
         <thead>
           <th scope="col">Current Time</th>
@@ -32,27 +46,34 @@
           <th scope="col">Humidity</th>
         </thead>
         <tbody>
-        <tr>
-          <td> {{ weather["currently"]["time"] }} </td>
-          <td> {{ weather["currently"]["summary"] }} </td>
-          <td> {{ weather["currently"]["temperature"] }}°F </td>
-          <td> {{ weather["currently"]["dewPoint"] }} </td>
-          <td> {{ weather["currently"]["humidity"] }} </td>
-        </tr>
+            <tr>
+                <td> {{ weather["currently"]["time"] }} </td>
+                <td> {{ weather["currently"]["summary"] }} </td>
+                <td> {{ weather["currently"]["temperature"] }}°F </td>
+                <td> {{ weather["currently"]["dewPoint"] }} </td>
+                <td> {{ weather["currently"]["humidity"] }} </td>
+            </tr>
       </tbody>
 </table>
 
-<h4>Write a comment about the area</h4>
-<form method="post">
-      <div class="form-group">
-        <label for="exampleFormControlTextarea1"></label>
-        <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-      </div>
-      <div class="form-check">
-        <input type="checkbox" class="form-check-input" id="exampleCheck1">
-        <label class="form-check-label" for="exampleCheck1">I visited here!</label>
-      </div>
-      <button type="submit" name="checkin" class="btn btn-primary">Submit</button>
 </form>
+<h4>Write a comment about the area and check in!</h4>
+<form method="post">
+
+    <!--Comment space-->
+    <div class="form-group">
+        <label for="exampleFormControlTextarea1"></label>
+        <textarea name="comment" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+    </div>
+
+    <!--Check box-->
+    <div class="form-check">
+        <input type="checkbox" value="checked" name="checked" class="form-check-input" id="exampleCheck1">
+        <label class="form-check-label" for="exampleCheck1">Check in!</label>
+    </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+
 
 {% endblock %}

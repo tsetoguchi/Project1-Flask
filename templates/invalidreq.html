@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Unsuccessful search!
+{% endblock %}
+
+{% block body %}
+    <div class="alert alert-danger">
+      <strong>Sorry!</strong> Unable to complete your request. {{ message }}
+    </div>
+
+    <form>
+      <input class="form-control input-lg" type="button" value="Back" onclick="history.go(-1)">
+    </form>
+
+{% endblock %}

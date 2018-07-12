@@ -7,14 +7,14 @@
         <thead>
             <th scope="col">Zipcode</th>
             <th scope="col">Location</th>
-            <th scope="col">Weather</th>
+            <th scope="col">Information</th>
         </thead>
         <tbody>
             {% for similar in similar %}
             <tr>
                 <td> {{ similar.zipcode }}</td>
                 <td> {{ similar.city }}, {{ similar.state }} </td>
-                <td><a href="{{ url_for('location', zipcode=similar.zipcode) }}" class="btn btn-info" role="button">!</a></td>
+                <td><a href="{{ url_for('location', zipcode=similar.zipcode) }}" class="btn btn-info" role="button">More...</a></td>
             </tr>
             {% endfor %}
         </tbody>

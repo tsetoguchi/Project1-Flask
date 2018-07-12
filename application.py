@@ -1,6 +1,6 @@
 import os
 import requests, json
-from flask import Flask, session, render_template, request
+from flask import Flask, session, render_template, request, jsonify
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -38,7 +38,6 @@ def login():
     # Get all of the zipcode information in the database, send it to the login.html template.
     zips = db.execute("SELECT * FROM zips").fetchall()
 
-
     # Get login information
     if request.method == "GET":
         return render_template("index.html")
@@ -49,23 +48,18 @@ def login():
         # Query for username and password
         username = db.execute("SELECT username FROM logins where username = :username", {"username": name}).fetchone()
         password_ = db.execute("SELECT password FROM logins where password = :password", {"password": password}).fetchone()
-        print(password_[0])
-        print(request.form["password"])
-        print(username[0])
-        print(request.form["name"])
+
+        # Check if username and password are both valid
+        if (username == None) or (password_ == None):
+            return render_template("invalidlogin.html")
+        # Check if there is both a username and password in logins
         if request.form["password"] == password_[0] and request.form["name"] == username[0]:
             session["user_id"] = id
             return render_template("login.html", name=name, password=password, logins=logins, zips=zips, id=session["user_id"])
-        if username[0] or password_[0] == None:
-            return render_template("invalidlogin.html")
-        elif name == '' or password == '':
-            return render_template("invalidlogin.html")
-
 
         # Check if username or password fields are empty
-
-        # elif (request.form["password"] == password_[0] and request.form["name"] == username[0]) is False:
-        #     return render_template("invalidlogin.html")
+        elif name == '' or password == '':
+            return render_template("invalidlogin.html")
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -83,15 +77,20 @@ def success():
     password = request.form.get("password")
     email = request.form.get("email")
 
-    # Get all of the user info in the database, send it to our register.html template.
-    #logins = db.execute("SELECT * FROM logins").fetchall()
-
     db.execute("INSERT INTO logins (username, password, email) VALUES (:username, :password, :email)",
             {"username": username, "password": password, "email": email})
 
     # Add information to logins
     db.commit()
     return render_template("success.html")
+
+@app.route("/checkin", methods=["GET", "POST"])
+def checkin():
+    # Get check in
+    if request.method == "POST":
+        if request.form["checkin"] == clicked:
+            return render_template("checkin.html", message="You have checked in!")
+
 
 @app.route("/locations", methods=["GET", "POST"])
 def locations():
@@ -111,38 +110,62 @@ def locations():
             # Similar zipcodes
             similar = db.execute("SELECT * FROM zips WHERE zipcode LIKE :zip", {"zip": zipcode}).fetchall()
             if similar == []:
-                return render_template("invalidsearch.html")
+                return render_template("invalidreq.html", message="You must submit a comment")
             else:
                 return render_template("locations.html", weather=weather, zips=zips, zipcode=zipcode, similar=similar)
 
     else:
         return render_template("unsuccessful.html")
 
-@app.route("/location/<zipcode>")
+@app.route("/location/<zipcode>", methods=["GET", "POST"])
 def location(zipcode):
-
 
     # Make sure zipcode exists.
     zip = db.execute("SELECT * FROM zips WHERE zipcode = :zip", {"zip": zipcode}).fetchone()
     if zip is None:
-        return render_template("invalidsearch.html")
+        return render_template("invalidreq.html")
+
+    # Get comment
+    comment = request.form.get("comment")
+    print(comment)
+    if comment == '':
+        return render_template("invalidreq.html")
+
+    # Similar zipcodes
+    similar = db.execute("SELECT * FROM zips WHERE zipcode LIKE :zip", {"zip": zipcode}).fetchall()
+
+    # Check in
+    checked = request.form.get('checked')
+    if checked:
+        db.execute("UPDATE checkins SET visit = visit + 1 WHERE location = :city", {"zipcode": similar[1]})
 
     # Get weather
     weather = requests.get("https://api.darksky.net/forecast/03420c86c79252e3e562d60cb56d5b03/" + str(zip[3]) + "," + str(zip[4])).json()
-    print('********************************')
-    print(zipcode)
-    print("https://api.darksky.net/forecast/03420c86c79252e3e562d60cb56d5b03/" + str(zip[3]) + "," + str(zip[4]))
-    # Similar zipcodes
-    similar = db.execute("SELECT * FROM zips WHERE zipcode LIKE :zip", {"zip": zipcode}).fetchall()
+
     if similar == []:
-        return render_template("invalidsearch.html")
+        return render_template("invalidreq.html")
     else:
-        return render_template("location.html", zip=zip, similar=similar, weather=weather)
+        return render_template("location.html", zip=zip, similar=similar, weather=weather, comment=comment)
 
+@app.route("/api/<zip>", methods=["GET"])
+def api(zip):
 
+    # Make sure zipcode exists.
+    zip = db.execute("SELECT * FROM zips WHERE zipcode = :zip", {"zip": zip}).fetchone()
+    if zip is None:
+        return jsonify({"error 404": "zipcode does not exist."}), 404
 
+    return jsonify({
+            "place_name": zip.city,
+            "state": zip.state,
+            "lattitude": str(zip.lat),
+            "longitude": str(zip.long),
+            "zip": zip.zipcode,
+            "population": str(zip.population),
 
+        })
 
+    return render_template("api.html", zipcode=zip)
 
 @app.route("/logout", methods=["GET", "POST"])
 def logout():
@@ -169,10 +192,10 @@ def weather():
     else:
         return render_template("unsuccessful.html")
 
-@app.route("/invalidsearch", methods=["GET", "POST"])
-def invalidsearch():
+@app.route("/invalidreq", methods=["GET", "POST"])
+def invalidreq():
 
     if session["user_id"] == id:
-        return render_template("invalidsearch.html")
+        return render_template("invalidreq.html")
     else:
         return render_template("unsuccessful.html")

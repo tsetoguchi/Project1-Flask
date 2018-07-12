@@ -8,7 +8,13 @@
   justify-content: center;
 }
 
-button {
+button
+{
   height: 20px;
   width: 100px;
+}
+
+h5
+{
+  text-align: center;
 }
