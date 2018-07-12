@@ -1,9 +1,0 @@
-                   List of relations
- Schema |       Name        |   Type   |     Owner      
---------+-------------------+----------+----------------
- public | flights           | table    | rtzgjsvvkpeusd
- public | flights_id_seq    | sequence | rtzgjsvvkpeusd
- public | passengers        | table    | rtzgjsvvkpeusd
- public | passengers_id_seq | sequence | rtzgjsvvkpeusd
-(4 rows)
-

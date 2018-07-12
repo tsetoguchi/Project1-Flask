@@ -21,6 +21,7 @@ Session(app)
 engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
 
+
 @app.route("/", methods=["GET", "POST"])
 def index():
 
@@ -32,34 +33,41 @@ def index():
 @app.route("/login", methods=["GET", "POST"])
 def login():
 
-    # Get all of the user info in the database, send it to the login.html template.
-    logins = db.execute("SELECT * FROM logins").fetchall()
+    # Check if session is active
+    if session["user_id"] == id:
+        return render_template("login.html")
+    else:
 
-    # Get all of the zipcode information in the database, send it to the login.html template.
-    zips = db.execute("SELECT * FROM zips").fetchall()
+        # Get all of the user info in the database, send it to the login.html template.
+        logins = db.execute("SELECT * FROM logins").fetchall()
 
-    # Get login information
-    if request.method == "GET":
-        return render_template("index.html")
-    if request.method == "POST":
-        name = request.form.get("name")
-        password = request.form.get("password")
+        # Get all of the zipcode information in the database, send it to the login.html template.
+        zips = db.execute("SELECT * FROM zips").fetchall()
 
-        # Query for username and password
-        username = db.execute("SELECT username FROM logins where username = :username", {"username": name}).fetchone()
-        password_ = db.execute("SELECT password FROM logins where password = :password", {"password": password}).fetchone()
+        # Get login information
+        if request.method == "GET":
+            return render_template("index.html")
+        if request.method == "POST":
+            name = request.form.get("name")
+            password = request.form.get("password")
 
-        # Check if username and password are both valid
-        if (username == None) or (password_ == None):
-            return render_template("invalidlogin.html")
-        # Check if there is both a username and password in logins
-        if request.form["password"] == password_[0] and request.form["name"] == username[0]:
-            session["user_id"] = id
-            return render_template("login.html", name=name, password=password, logins=logins, zips=zips, id=session["user_id"])
+            # Query for username and password
+            username = db.execute("SELECT username FROM logins where username = :username", {"username": name}).fetchone()
+            password_ = db.execute("SELECT password FROM logins where password = :password", {"password": password}).fetchone()
 
-        # Check if username or password fields are empty
-        elif name == '' or password == '':
-            return render_template("invalidlogin.html")
+            # Check if username and password are both valid
+            if (username == None) or (password_ == None):
+                return render_template("invalidlogin.html")
+            # Check if there is both a username and password in logins
+            if request.form["password"] == password_[0] and request.form["name"] == username[0]:
+                # Could not get this line to work, curious about your opinion
+                # db.execute("INSERT INTO checkins (username) VALUES (:name)", {"name": name})
+                session["user_id"] = id
+                return render_template("login.html", name=name, password=password, logins=logins, zips=zips, id=session["user_id"])
+
+            # Check if username or password fields are empty
+            elif name == '' or password == '':
+                return render_template("invalidlogin.html")
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -86,10 +94,15 @@ def success():
 
 @app.route("/checkin", methods=["GET", "POST"])
 def checkin():
+    # Check if session is active
+    if session["user_id"] == id:
     # Get check in
-    if request.method == "POST":
-        if request.form["checkin"] == clicked:
-            return render_template("checkin.html", message="You have checked in!")
+        if request.method == "POST":
+            if request.form["checkin"] == clicked:
+                return render_template("checkin.html", message="You have checked in!")
+
+    else:
+        return render_template("unsuccessful.html")
 
 
 @app.route("/locations", methods=["GET", "POST"])
@@ -110,9 +123,9 @@ def locations():
             # Similar zipcodes
             similar = db.execute("SELECT * FROM zips WHERE zipcode LIKE :zip", {"zip": zipcode}).fetchall()
             if similar == []:
-                return render_template("invalidreq.html", message="You must submit a comment")
+                return render_template("invalidreq.html", message="You must submit a valid zipcode")
             else:
-                return render_template("locations.html", weather=weather, zips=zips, zipcode=zipcode, similar=similar)
+                return render_template("locations.html", zips=zips, zipcode=zipcode, similar=similar)
 
     else:
         return render_template("unsuccessful.html")
@@ -125,27 +138,31 @@ def location(zipcode):
     if zip is None:
         return render_template("invalidreq.html")
 
-    # Get comment
-    comment = request.form.get("comment")
-    print(comment)
-    if comment == '':
-        return render_template("invalidreq.html")
+    # Check if session is active
+    if session["user_id"] == id:
+        # Get comment
+        comment = request.form.get("comment")
+        print(comment)
+        if comment == '':
+            return render_template("invalidreq.html", message="You must submit a comment")
 
-    # Similar zipcodes
-    similar = db.execute("SELECT * FROM zips WHERE zipcode LIKE :zip", {"zip": zipcode}).fetchall()
+        # Similar zipcodes
+        similar = db.execute("SELECT * FROM zips WHERE zipcode LIKE :zip", {"zip": zipcode}).fetchall()
 
-    # Check in
-    checked = request.form.get('checked')
-    if checked:
-        db.execute("UPDATE checkins SET visit = visit + 1 WHERE location = :city", {"zipcode": similar[1]})
+        # Check in
+        #checked = request.form.get('checked')
+        #if checked:
+        #    db.execute("UPDATE checkins SET visit = visit + 1 WHERE location = :city", {"zipcode": similar[1]})
 
-    # Get weather
-    weather = requests.get("https://api.darksky.net/forecast/03420c86c79252e3e562d60cb56d5b03/" + str(zip[3]) + "," + str(zip[4])).json()
+        # Get weather
+        weather = requests.get("https://api.darksky.net/forecast/03420c86c79252e3e562d60cb56d5b03/" + str(zip[3]) + "," + str(zip[4])).json()
 
-    if similar == []:
-        return render_template("invalidreq.html")
+        if similar == []:
+            return render_template("invalidreq.html", message="You must submit a comment!")
+        else:
+            return render_template("location.html", zip=zip, similar=similar, weather=weather, comment=comment)
     else:
-        return render_template("location.html", zip=zip, similar=similar, weather=weather, comment=comment)
+        return render_template("unsuccessful.html")
 
 @app.route("/api/<zip>", methods=["GET"])
 def api(zip):
@@ -162,8 +179,8 @@ def api(zip):
             "longitude": str(zip.long),
             "zip": zip.zipcode,
             "population": str(zip.population),
-
-        })
+           # "checkins":
+           })
 
     return render_template("api.html", zipcode=zip)
 
@@ -174,21 +191,6 @@ def logout():
     if session["user_id"] == id:
         session.clear()
         return render_template("logout.html")
-    else:
-        return render_template("unsuccessful.html")
-
-@app.route("/weather", methods=["GET", "POST"])
-def weather():
-
-    # Check if session is active
-    if session["user_id"] == id:
-
-        # Get all of the user info in the database, send it to our weather.html template.
-        logins = db.execute("SELECT * FROM logins").fetchall()
-        zipcode = request.form.get("zipcode")
-        weather = requests.get("https://api.darksky.net/forecast/03420c86c79252e3e562d60cb56d5b03/%55.55,-70.77").json()
-        return render_template("weather.html", weather=weather, zipcode=zipcode)
-
     else:
         return render_template("unsuccessful.html")
 

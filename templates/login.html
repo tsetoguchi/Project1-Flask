@@ -11,8 +11,12 @@
     <form action="{{ url_for('locations') }}" method="post">
         <div class="form group">
             <input class="form-control input-lg" id="inputlg" type="text" name="zipcode" placeholder="Type in a Zipcode" tabindex="1">
-            <button tabindex="3">Go!</button>
+            <!--<button tabindex="3">Go!</button>-->
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit" tabindex="3">Search</button>
         </div>
     </form>
 
+
 {% endblock %}
+
+
