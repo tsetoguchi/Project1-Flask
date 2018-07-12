@@ -14,11 +14,6 @@
         <button tabindex="3">Go!</button>
     </form>
 
-    <form action="{{ url_for('locations') }}" method="post">
-        <input type="text" name="city" placeholder="Type in a City" tabindex="1">
-        <button tabindex="3">Go!</button>
-    </form>
-
     <a href="{{ url_for('logout') }}">Logout</a>
 
 {% endblock %}

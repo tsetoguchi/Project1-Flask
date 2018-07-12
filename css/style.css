@@ -1,0 +1,14 @@
+/*Stylesheet file*/
+
+ /*Center class*/
+#wrapper
+{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+button {
+  height: 20px;
+  width: 100px;
+}

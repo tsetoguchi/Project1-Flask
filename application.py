@@ -130,6 +130,7 @@ def location(zipcode):
     # Get weather
     weather = requests.get("https://api.darksky.net/forecast/03420c86c79252e3e562d60cb56d5b03/" + str(zip[3]) + "," + str(zip[4])).json()
     print('********************************')
+    print(zipcode)
     print("https://api.darksky.net/forecast/03420c86c79252e3e562d60cb56d5b03/" + str(zip[3]) + "," + str(zip[4]))
     # Similar zipcodes
     similar = db.execute("SELECT * FROM zips WHERE zipcode LIKE :zip", {"zip": zipcode}).fetchall()
@@ -137,6 +138,8 @@ def location(zipcode):
         return render_template("invalidsearch.html")
     else:
         return render_template("location.html", zip=zip, similar=similar, weather=weather)
+
+
 
 
 
